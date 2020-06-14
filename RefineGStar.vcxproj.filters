@@ -7,15 +7,24 @@
     <ClInclude Include="DebuggingTool\Assert.h">
       <Filter>DebuggingTool</Filter>
     </ClInclude>
+    <ClInclude Include="Time\GSTime.h">
+      <Filter>Time</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="DebuggingTool">
       <UniqueIdentifier>{5820c751-c7f7-41cf-b140-f39be99f69cf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Time">
+      <UniqueIdentifier>{cccd9d68-fd19-4952-81ff-c769dcac355f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DebuggingTool\ConsolePrint.cpp">
       <Filter>DebuggingTool</Filter>
+    </ClCompile>
+    <ClCompile Include="Time\GSTime.cpp">
+      <Filter>Time</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
