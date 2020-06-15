@@ -1,7 +1,6 @@
 #pragma once
 #include <Windows.h>
 #include <GLFW\glfw3.h>
-#include <memory>
 //use GLFW for non windows application
 //This feels like the delta time for the last frame instead of this one
 namespace GStar {
@@ -18,6 +17,7 @@ namespace GStar {
 				delete instance;
 			}
 		}
+		GSTime() :_lasttime(0.0f) {}
 		//Call this function after the GLFW window got setup and in every update()
 		inline double GetdeltaTime() const {
 			return _deltatime;
@@ -51,7 +51,6 @@ namespace GStar {
 		}
 #endif
 	private:
-		GSTime() :_lasttime(0.0f) {}
 		static GSTime* instance;
 		double _deltatime;
 		double _lasttime;

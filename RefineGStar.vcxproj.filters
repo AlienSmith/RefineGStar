@@ -10,6 +10,21 @@
     <ClInclude Include="Time\GSTime.h">
       <Filter>Time</Filter>
     </ClInclude>
+    <ClInclude Include="HeapManager\BitArray.h">
+      <Filter>HeapManager</Filter>
+    </ClInclude>
+    <ClInclude Include="HeapManager\FixiedSizeAllocator.h">
+      <Filter>HeapManager</Filter>
+    </ClInclude>
+    <ClInclude Include="HeapManager\HeapManager.h">
+      <Filter>HeapManager</Filter>
+    </ClInclude>
+    <ClInclude Include="HeapManager\HeapManagerProxy.h">
+      <Filter>HeapManager</Filter>
+    </ClInclude>
+    <ClInclude Include="HeapManager\MemorySystem.h">
+      <Filter>HeapManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="DebuggingTool">
@@ -18,6 +33,9 @@
     <Filter Include="Time">
       <UniqueIdentifier>{cccd9d68-fd19-4952-81ff-c769dcac355f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="HeapManager">
+      <UniqueIdentifier>{f28f3eff-5c2f-4aa8-af2f-1f6b97a00e64}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DebuggingTool\ConsolePrint.cpp">
@@ -25,6 +43,18 @@
     </ClCompile>
     <ClCompile Include="Time\GSTime.cpp">
       <Filter>Time</Filter>
+    </ClCompile>
+    <ClCompile Include="HeapManager\FixiedSizeAllocator.cpp">
+      <Filter>HeapManager</Filter>
+    </ClCompile>
+    <ClCompile Include="HeapManager\HeapManager.cpp">
+      <Filter>HeapManager</Filter>
+    </ClCompile>
+    <ClCompile Include="HeapManager\HeapManagerProxy.cpp">
+      <Filter>HeapManager</Filter>
+    </ClCompile>
+    <ClCompile Include="HeapManager\MemorySystem.cpp">
+      <Filter>HeapManager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
