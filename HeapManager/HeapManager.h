@@ -2,7 +2,7 @@
 /*Allocated from high address to low address Check and Collect from Low Addresses to High Addresses*/
 //Using Singleton
 //use _DEBUGADDRESS to break at the allocations of address returned by AreBlockFrees(Under Debug mode)
-//#define _DEBUGADDRESS 1048528
+//#define _DEBUGADDRESS 15392
 // the size in info block decides it can manage at most 1GB memory at release mod 2^30 byte = 1 GB
 #pragma once
 #include <stdio.h>
@@ -14,7 +14,7 @@
 #define ENVIRONMENT32
 #endif
 #endif
-#if defined(_DEBUG) && !defined(DISABLE_DEBUG_HEAPMANAGER) && defined(ENVIRONMENT32)
+#if defined(_DEBUG) &&!defined(DISABLE_DEBUG_HEAPMANAGER) && defined(ENVIRONMENT32)
 #define _DEBUGACTIVITE
 struct INFOBLCOK { char start[4]; size_t isusing :2; size_t size:30; char end[4]; };
 
@@ -23,7 +23,7 @@ struct INFOBLCOK { char start[4]; size_t isusing :2; size_t size:30; char end[4]
 struct INFOBLCOK { char start[8]; size_t isusing : 2; size_t size : 62; char end[8]; };
 
 #elif defined(ENVIRONMENT32)
-struct INFOBLCOK { int samble; size_t isusing : 2; size_t size : 30; };
+struct INFOBLCOK { size_t isusing : 2; size_t size : 30; };
 
 #elif defined(ENVIRONMENT64)
 struct INFOBLCOK { size_t isusing : 2; size_t size : 30; };
@@ -47,12 +47,12 @@ public:
 	static void* _movePointerBackward(const void* const _pointer, size_t number);
 	static size_t difference(void* one, void* two);
 	// these statics decides wheter a block is being used by client. e suggests end of the heap;
-	static const size_t infoisusing = 0;
-	static const size_t infoisnotusing = 1;
+	static const size_t infoisusing = 1;
+	static const size_t infoisnotusing = 3;
 	static const size_t infoend = 2;
 #if defined(ENVIRONMENT64) && defined(_DEBUG)
 	static const int guardsize = 8;
-#elif defined(ENVIRONMENT32) && defined(_DEBUG)
+#elif defined(ENVIRONMENT32) 
 	static const int guardsize = 4;
 #endif
 	static const char fillguard = 'g';

@@ -131,8 +131,7 @@ void * HeapManager::FindFirstFit(size_t size)
 	return FindFirstFit(size, 4);
 }
 //????????
-#if defined(_DEBUGACTIVITE)
-#if defined(_DEBUGADDRESS)
+#if defined(_DEBUGACTIVITE) && defined(_DEBUGADDRESS)
 void* HeapManager::FindFirstFit(size_t size, unsigned int i_alignment)
 {
 	_current = _pHeapMemory;
@@ -157,7 +156,7 @@ void* HeapManager::FindFirstFit(size_t size, unsigned int i_alignment)
 	}
 	return _current;
 }
-#else
+#elif defined(_DEBUGACTIVITE) && !defined(_DEBUGADDRESS)
 void * HeapManager::FindFirstFit(size_t size, unsigned int i_alignment)
 {
 	_current = _pHeapMemory;
@@ -181,7 +180,34 @@ void * HeapManager::FindFirstFit(size_t size, unsigned int i_alignment)
 	}*/
 	return _current;
 }
-#endif
+#elif defined(_DEBUGADDRESS)&& !defined(_DEBUGACTIVITE)
+void* HeapManager::FindFirstFit(size_t size, unsigned int i_alignment)
+{
+	//printf("This is one search ==========================================================\n");
+	num_alloc++;
+	/*if (num_alloc == 1896) {
+		DEBUG_PRINT(GStar::LOGPlatform::Console, GStar::LOGType::Waring, "Got it");
+	}*/
+	_current = _pHeapMemory;
+	INFOBLCOK* current = reinterpret_cast<INFOBLCOK*>(_current);
+	while (!(this->_Match(size, i_alignment))) {
+		if (current->isusing == HeapManager::infoend) {
+			return nullptr;
+		}
+		else
+		{
+			_current = _TravelToNextDescriptor(current);
+			current = reinterpret_cast<INFOBLCOK*>(_current);
+		}
+	}
+	//Successfully made the allocation Move _current pointer to user's location
+	_current = _movePointerForward(_current, sizeof(INFOBLCOK));
+	unsigned long relative_address = RelativeAddress(_current);
+	if (relative_address == _DEBUGADDRESS) {
+		DEBUG_PRINT(GStar::LOGPlatform::Console, GStar::LOGType::Error, "Memory Debug point reached, it is the %i allocation", num_alloc);
+	}
+	return _current;
+}
 #else
 void * HeapManager::FindFirstFit(size_t size, unsigned int i_alignment)
 {
@@ -204,6 +230,7 @@ void * HeapManager::FindFirstFit(size_t size, unsigned int i_alignment)
 	return _current;
 }
 #endif
+
 #if defined(_DEBUGACTIVITE)
 INFOBLCOK * HeapManager::_TravelToNextDescriptor(const INFOBLCOK* const i_ptr) const
 {
@@ -315,6 +342,7 @@ bool HeapManager::_TryCut(size_t size, unsigned int alignment)
 	}
 	//Overwrite the descriptor if the padding is correct otherwise return false
 	else if ((realsize < (size + padding + sizeof(INFOBLCOK)) * 2)&& ((reinterpret_cast<size_t>(current) + sizeof(INFOBLCOK)) % alignment == 0)) {
+		current->isusing = HeapManager::infoisusing;
 		return true;
 	}
 	//Cut the space
@@ -475,20 +503,14 @@ bool HeapManager::contains(void * ipr) const
 {
 	bool result = true;
 	void* temp_ptr = _movePointerBackward(ipr, sizeof(INFOBLCOK));
-	INFOBLCOK* temp = (INFOBLCOK*)temp_ptr;
-	int count = 0;
+	INFOBLCOK* temp = reinterpret_cast<INFOBLCOK*>(temp_ptr);
+	//Sable is wrong
 	if (temp->isusing != HeapManager::infoisusing &&temp->isusing != HeapManager::infoisnotusing) {
 		return false;
 	}
-	while (count < 2) {
-		count++;
-		if (temp->isusing == HeapManager::infoend) {
-			break;
-		}
-		else if (temp->isusing != HeapManager::infoisusing && temp->isusing != HeapManager::infoisnotusing) {
-			result = false;
-			break;
-		}
+	//Out of range
+	if (reinterpret_cast<size_t>(ipr) - reinterpret_cast<rsize_t>(_pHeapMemory) > _sizeHeap) {
+		return false;
 	}
 	return result;
 }
@@ -497,11 +519,13 @@ bool HeapManager::IsAllocated(void * ipr) const
 {
 	if (contains(ipr)) {
 		void* temp_ptr = _movePointerBackward(ipr, sizeof(INFOBLCOK));
-		INFOBLCOK* temp = (INFOBLCOK*)temp_ptr;
+		INFOBLCOK* temp = reinterpret_cast<INFOBLCOK*>(temp_ptr);
 		if (temp->isusing == HeapManager::infoisusing) {
 			return true;
 		}
 	}
+	unsigned long relative_address = RelativeAddress(ipr);
+	DEBUG_PRINT(GStar::LOGPlatform::Console, GStar::LOGType::Waring, "You should not get this %p addresses %lu", ipr, relative_address);
 	return false;
 }
 
