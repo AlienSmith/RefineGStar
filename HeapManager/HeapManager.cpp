@@ -4,6 +4,7 @@
 #include "../DebuggingTool/ConsolePrint.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "../DebuggingTool/Assert.h"
 #if defined(_DEBUGACTIVITE)
 void HeapManager::InitializeWith(size_t HeapSize, unsigned int numDescriptors, void * _pHeapMemeoy)
 {
@@ -58,19 +59,12 @@ void HeapManager::InitializeWith(size_t HeapSize, unsigned int numDescriptors, v
 	endinfoblock->isusing = HeapManager::infoend;
 	endinfoblock->size = 0;
 	DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Log, "The memory block end at%p", endinfoblock);
-	_end = reinterpret_cast<size_t>(endinfoblock) - reinterpret_cast<size_t>(_pHeapMemeoy);
 }
 #endif
 
-HeapManager::~HeapManager()
-{
-	/*if (_pHeapMemory) {
-		delete _pHeapMemory;
-	}*/
-}
-
 void * HeapManager::FindFirstFit(size_t size)
 {
+	ASSERT(_pHeapMemory, "Heap already released");
 	return FindFirstFit(size, 4);
 }
 //????????
@@ -317,6 +311,7 @@ void HeapManager::_addinfoblock(size_t size)
 
 void HeapManager::Collect()
 {
+	ASSERT(_pHeapMemory, "Heap already been released");
 	INFOBLCOK*  d_ptr = (INFOBLCOK*)_pHeapMemory;
 	//the start of user info
 	void*  i_ptr = _movePointerForward(d_ptr, sizeof(INFOBLCOK));
@@ -345,6 +340,7 @@ void HeapManager::Collect()
 }
 void HeapManager::ShowFreeBlocks() const
 {
+	ASSERT(_pHeapMemory, "Heap already released");
 	INFOBLCOK* current = (INFOBLCOK*)_pHeapMemory;
 	int count = 0;
 	while (current->isusing != HeapManager::infoend) {
@@ -358,6 +354,7 @@ void HeapManager::ShowFreeBlocks() const
 }
 void HeapManager::ShowOutstandingAllocations() const
 {
+	ASSERT(_pHeapMemory, "Heap already released");
 	INFOBLCOK* current = (INFOBLCOK*)_pHeapMemory;
 	int count = 0;
 	while (current->isusing != HeapManager::infoend) {
@@ -369,6 +366,7 @@ void HeapManager::ShowOutstandingAllocations() const
 	}
 	return;
 }
+#if defined(_DEBUGACTIVITE)
 bool HeapManager::AreBlocksFree() const
 {
 	INFOBLCOK* current = (INFOBLCOK*)_pHeapMemory;
@@ -385,6 +383,11 @@ bool HeapManager::AreBlocksFree() const
 	}
 	return true;
 }
+#else
+bool HeapManager::AreBlocksFree() const {
+	return true;
+}
+#endif
 #if defined(_DEBUGACTIVITE)
 void HeapManager::_FreeCheck(void* ipr)
 {
@@ -405,6 +408,7 @@ unsigned long HeapManager::RelativeAddress(void* ptr) const
 }
 bool HeapManager::free(void * i_ptr)
 {
+	ASSERT(_pHeapMemory, "Heap already been released");
 	num_free++;
 	bool result = false;
 	if (IsAllocated(i_ptr)) {
@@ -444,6 +448,7 @@ void HeapManager::_deletHead()
 }
 bool HeapManager::contains(void * ipr) const
 {
+	ASSERT(_pHeapMemory, "Heap already released");
 	bool result = true;
 	void* temp_ptr = _movePointerBackward(ipr, sizeof(INFOBLCOK));
 	INFOBLCOK* temp = reinterpret_cast<INFOBLCOK*>(temp_ptr);
@@ -467,6 +472,7 @@ bool HeapManager::IsAllocated(void * ipr) const
 			return true;
 		}
 	}
+	//used in debug mode
 	unsigned long relative_address = RelativeAddress(ipr);
 	DEBUG_PRINT(GStar::LOGPlatform::Console, GStar::LOGType::Waring, "You should not get this %p addresses %lu", ipr, relative_address);
 	return false;
@@ -474,11 +480,6 @@ bool HeapManager::IsAllocated(void * ipr) const
 
 
 
-
-void HeapManager::SetPointerTo(void * _pHeapMemeoy)
-{
-	this->_pHeapMemory = _pHeapMemeoy;
-}
 
 void* HeapManager::_movePointerForward(const void * const _pointer, size_t number)
 {

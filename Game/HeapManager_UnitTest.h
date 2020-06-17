@@ -29,8 +29,7 @@ bool HeapManager_UnitTest()
 
 	if (pHeapManager == nullptr)
 		return false;
-	int* i_ptr = new int();
-	delete i_ptr;
+	//int* i_ptr = new int();
 	//return true;
 //
 //#ifdef TEST_SINGLE_LARGE_ALLOCATION

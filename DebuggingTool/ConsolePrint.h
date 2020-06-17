@@ -1,6 +1,5 @@
 #ifndef __CONSOLE_PRINT_H
 #define __CONSOLE_PRINT_H
-
 namespace GStar
 {
 	enum LOGType { Log = 0, Waring = 1, Error = 2 };

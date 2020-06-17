@@ -2,7 +2,7 @@
 /*Allocated from high address to low address Check and Collect from Low Addresses to High Addresses*/
 //Using Singleton
 //use _DEBUGADDRESS to break at the allocations of address returned by AreBlockFrees(Under Debug mode)
-//#define _DEBUGADDRESS 15392
+#define _DEBUGADDRESS 1048556
 // the size in info block decides it can manage at most 1GB memory at release mod 2^30 byte = 1 GB
 #pragma once
 #include <stdio.h>
@@ -38,9 +38,16 @@ public:
 		static HeapManager instance;
 		return instance;
 	}
-	HeapManager() :_pHeapMemory(nullptr) {}
 	void InitializeWith(size_t HeapSize, unsigned int numDescriptors, void * _pHeapMemeoy);
-	void SetPointerTo(void * _pHeapMemeoy);
+	void Destory() {
+		_pHeapMemory = nullptr; 
+		_sizeHeap = 0;
+		_numDescriptors =0;
+		_pHeapMemory = 0;
+		_current = nullptr;
+		num_alloc = 0;
+		num_free = 0;
+	}
 	//Move to Lower Adresses
 	static void* _movePointerForward(const void* const _pointer, size_t number);
 	//Move to Higher Addresses
@@ -60,9 +67,6 @@ public:
 	static const char fillinitialfilled = 'i';
 	static const char fillpadding = 'p';
 	//HeapManager(size_t HeapSize, unsigned int numDescriptors, void* _pHeapMemeoy);
-	HeapManager(const HeapManager& other) = delete;
-	HeapManager& operator == (const HeapManager& other) = delete;
-	~HeapManager();
 	void* FindFirstFit(size_t size);
 	void* FindFirstFit(size_t size, unsigned int i_alignment);
 	bool free(void* i_ptr);
@@ -72,9 +76,14 @@ public:
 	void Collect();
 	void ShowFreeBlocks() const;
 	void ShowOutstandingAllocations() const;
+	//This function does nothing under realease
 	bool AreBlocksFree() const;
 	//Temp Function
 private:
+	HeapManager() :_pHeapMemory(nullptr) {}
+	HeapManager& operator ==(HeapManager& other) = delete;
+	HeapManager(const HeapManager& other) = delete;
+	~HeapManager(){}
 	bool _tryFastBackCollect();// Require the _current pointer set to the descriptor return blocksize + INFOSIZE -1 for false
 	void _deletHead();// Require the _current pointer set to the descriptor return blocksize + INFOSIZE
 	
@@ -83,11 +92,9 @@ private:
 	void* _pHeapMemory;
 	void* _current;
 
-	size_t _end;
 
-	void* _debug;
 	size_t num_alloc = 0;
-	size_t num_free = 1;
+	size_t num_free = 0;
 
 
 	bool _Match(size_t size, unsigned int alignment);

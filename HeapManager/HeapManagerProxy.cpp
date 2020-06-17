@@ -7,7 +7,9 @@
 
 bool HeapManagerProxy::Destroy()
 {
-	return HeapManager::Instance().AreBlocksFree();
+	HeapManager::Instance().AreBlocksFree();
+	HeapManager::Instance().Destory();
+	return true;
 }
 
 void * HeapManagerProxy::alloc(HeapManager * i_pManager, size_t i_size)
