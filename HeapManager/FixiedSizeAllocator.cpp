@@ -54,7 +54,7 @@ bool FixedSizeAllocator::Isin32ByteBlock(void * i_ptr, size_t& index)const
 		}
 		else
 		{
-			DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Waring, " is in the _16byte block but not a start point");
+			DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Waring, " is in the _32byte block but not a start point");
 		}
 	}
 	return false;
@@ -72,7 +72,7 @@ bool FixedSizeAllocator::Isin96ByteBlock(void * i_ptr,size_t& index) const
 		}
 		else
 		{
-			DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Waring, " is in the _16byte block but not a start point");
+			DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Waring, " is in the _96 byte block but not a start point");
 		}
 	}
 	return false;
@@ -81,6 +81,7 @@ bool FixedSizeAllocator::Isin96ByteBlock(void * i_ptr,size_t& index) const
 void * FixedSizeAllocator::malloc(size_t i_size, size_t i_alignment)
 {
 	new_count++;
+	// 1~15
 	if (FixedSizeAllocator::Block16Down < i_size && i_size < FixedSizeAllocator::Block16UP) {
 		bool temp;
 		size_t index;
@@ -93,6 +94,7 @@ void * FixedSizeAllocator::malloc(size_t i_size, size_t i_alignment)
 			return head;
 		}
 	}
+	// 18~31
 	else if (FixedSizeAllocator::Block32Down < i_size && i_size < FixedSizeAllocator::Block32UP) {
 		bool temp;
 		size_t index;
@@ -105,6 +107,7 @@ void * FixedSizeAllocator::malloc(size_t i_size, size_t i_alignment)
 			return head;
 		}
 	}
+	// 34~95
 	else if (FixedSizeAllocator::Block96Down < i_size && i_size < FixedSizeAllocator::Block96UP) {
 		bool temp;
 		size_t index;
@@ -117,6 +120,7 @@ void * FixedSizeAllocator::malloc(size_t i_size, size_t i_alignment)
 			return head;
 		}
 	}
+	//The block is too large or the corresponding address are all used
 	return HeapManager::Instance().FindFirstFit(i_size, (unsigned int)i_alignment);
 }
 

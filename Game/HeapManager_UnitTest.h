@@ -11,7 +11,6 @@
 #define SUPPORTS_SHOWFREEBLOCKS
 #define SUPPORTS_SHOWOUTSTANDINGALLOCATIONS
 
-
 bool HeapManager_UnitTest()
 {
 	using namespace HeapManagerProxy;
@@ -30,63 +29,65 @@ bool HeapManager_UnitTest()
 
 	if (pHeapManager == nullptr)
 		return false;
-
+	//return true;
+//
+//#ifdef TEST_SINGLE_LARGE_ALLOCATION
+//		// This is a test I wrote to check to see if using the whole block if it was almost consumed by 
+//		// an allocation worked. Also helped test my ShowFreeBlocks() and ShowOutstandingAllocations().
+//		{
+//#ifdef SUPPORTS_SHOWFREEBLOCKS
+//			ShowFreeBlocks(pHeapManager);
+//#endif // SUPPORTS_SHOWFREEBLOCKS
+//
+//			size_t largestBeforeAlloc = GetLargestFreeBlock(pHeapManager);
+//			void* pPtr = alloc(pHeapManager, largestBeforeAlloc - HeapManager::s_MinumumToLeave);
+//
+//			if (pPtr)
+//			{
+//#if defined(SUPPORTS_SHOWFREEBLOCKS) || defined(SUPPORTS_SHOWOUTSTANDINGALLOCATIONS)
+//				printf("After large allocation:\n");
+//#ifdef SUPPORTS_SHOWFREEBLOCKS
+//				ShowFreeBlocks(pHeapManager);
+//#endif // SUPPORTS_SHOWFREEBLOCKS
+//#ifdef SUPPORTS_SHOWOUTSTANDINGALLOCATIONS
+//				ShowOutstandingAllocations(pHeapManager);
+//#endif // SUPPORTS_SHOWOUTSTANDINGALLOCATIONS
+//				printf("\n");
+//#endif
+//
+//				size_t largestAfterAlloc = GetLargestFreeBlock(pHeapManager);
+//				bool success = Contains(pHeapManager, pPtr) && IsAllocated(pHeapManager, pPtr);
+//				assert(success);
+//
+//				success = free(pHeapManager, pPtr);
+//				assert(success);
+//
+//				Collect(pHeapManager);
+//
+//#if defined(SUPPORTS_SHOWFREEBLOCKS) || defined(SUPPORTS_SHOWOUTSTANDINGALLOCATIONS)
+//				printf("After freeing allocation and garbage collection:\n");
+//#ifdef SUPPORTS_SHOWFREEBLOCKS
+//				ShowFreeBlocks(pHeapManager);
+//#endif // SUPPORTS_SHOWFREEBLOCKS
+//#ifdef SUPPORTS_SHOWOUTSTANDINGALLOCATIONS
+//				ShowOutstandingAllocations(pHeapManager);
+//#endif // SUPPORTS_SHOWOUTSTANDINGALLOCATIONS
+//				printf("\n");
+//#endif
+//
+//				size_t largestAfterCollect = GetLargestFreeBlock(pHeapManager);
+//			}
+//		}
+//#endif
+	int i = 0;
 	{
-
-#ifdef TEST_SINGLE_LARGE_ALLOCATION
-		// This is a test I wrote to check to see if using the whole block if it was almost consumed by 
-		// an allocation worked. Also helped test my ShowFreeBlocks() and ShowOutstandingAllocations().
-		{
-#ifdef SUPPORTS_SHOWFREEBLOCKS
-			ShowFreeBlocks(pHeapManager);
-#endif // SUPPORTS_SHOWFREEBLOCKS
-
-			size_t largestBeforeAlloc = GetLargestFreeBlock(pHeapManager);
-			void* pPtr = alloc(pHeapManager, largestBeforeAlloc - HeapManager::s_MinumumToLeave);
-
-			if (pPtr)
-			{
-#if defined(SUPPORTS_SHOWFREEBLOCKS) || defined(SUPPORTS_SHOWOUTSTANDINGALLOCATIONS)
-				printf("After large allocation:\n");
-#ifdef SUPPORTS_SHOWFREEBLOCKS
-				ShowFreeBlocks(pHeapManager);
-#endif // SUPPORTS_SHOWFREEBLOCKS
-#ifdef SUPPORTS_SHOWOUTSTANDINGALLOCATIONS
-				ShowOutstandingAllocations(pHeapManager);
-#endif // SUPPORTS_SHOWOUTSTANDINGALLOCATIONS
-				printf("\n");
-#endif
-
-				size_t largestAfterAlloc = GetLargestFreeBlock(pHeapManager);
-				bool success = Contains(pHeapManager, pPtr) && IsAllocated(pHeapManager, pPtr);
-				assert(success);
-
-				success = free(pHeapManager, pPtr);
-				assert(success);
-
-				Collect(pHeapManager);
-
-#if defined(SUPPORTS_SHOWFREEBLOCKS) || defined(SUPPORTS_SHOWOUTSTANDINGALLOCATIONS)
-				printf("After freeing allocation and garbage collection:\n");
-#ifdef SUPPORTS_SHOWFREEBLOCKS
-				ShowFreeBlocks(pHeapManager);
-#endif // SUPPORTS_SHOWFREEBLOCKS
-#ifdef SUPPORTS_SHOWOUTSTANDINGALLOCATIONS
-				ShowOutstandingAllocations(pHeapManager);
-#endif // SUPPORTS_SHOWOUTSTANDINGALLOCATIONS
-				printf("\n");
-#endif
-
-				size_t largestAfterCollect = GetLargestFreeBlock(pHeapManager);
-			}
-		}
-#endif
-
+		i++;
+		printf("%d", i);
 		std::vector<void*> AllocatedAddresses;
+		//AllocatedAddresses.reserve(200000);
 		long	numAllocs = 0;
 		long	numFrees = 0;
 		long	numCollects = 0;
-
 		// allocate memory of random sizes up to 1024 bytes from the heap manager
 		// until it runs out of memory
 		do

@@ -3,7 +3,7 @@
 //Using Singleton
 //use _DEBUGADDRESS to break at the allocations of address returned by AreBlockFrees(Under Debug mode)
 //#define _DEBUGADDRESS 1048528
-
+// the size in info block decides it can manage at most 1GB memory at release mod 2^30 byte = 1 GB
 #pragma once
 #include <stdio.h>
 #define GENERALHEAPSIZE 2.56e+8
@@ -14,16 +14,16 @@
 #define ENVIRONMENT32
 #endif
 #endif
-#if defined(_DEBUG)  &&  !defined(DISABLE_DEBUG_HEAPMANAGER) && defined(ENVIRONMENT32)
+#if defined(_DEBUG) && !defined(DISABLE_DEBUG_HEAPMANAGER) && defined(ENVIRONMENT32)
 #define _DEBUGACTIVITE
 struct INFOBLCOK { char start[4]; size_t isusing :2; size_t size:30; char end[4]; };
 
-#elif defined(_DEBUG)  &&  !defined(DISABLE_DEBUG_HEAPMANAGER) && defined(ENVIRONMENT64)
+#elif defined(_DEBUG) && !defined(DISABLE_DEBUG_HEAPMANAGER) && defined(ENVIRONMENT64)
 #define _DEBUGACTIVITE
 struct INFOBLCOK { char start[8]; size_t isusing : 2; size_t size : 62; char end[8]; };
 
 #elif defined(ENVIRONMENT32)
-struct INFOBLCOK { size_t isusing : 2; size_t size : 30; };
+struct INFOBLCOK { int samble; size_t isusing : 2; size_t size : 30; };
 
 #elif defined(ENVIRONMENT64)
 struct INFOBLCOK { size_t isusing : 2; size_t size : 30; };
@@ -49,17 +49,17 @@ public:
 	// these statics decides wheter a block is being used by client. e suggests end of the heap;
 	static const size_t infoisusing = 0;
 	static const size_t infoisnotusing = 1;
-	static const size_t infoend = 3;
-#if defined(ENVIRONMENT64)
+	static const size_t infoend = 2;
+#if defined(ENVIRONMENT64) && defined(_DEBUG)
 	static const int guardsize = 8;
-#elif defined(ENVIRONMENT32)
+#elif defined(ENVIRONMENT32) && defined(_DEBUG)
 	static const int guardsize = 4;
 #endif
 	static const char fillguard = 'g';
 	static const char fillfreed = 'f';
 	static const char fillinitialfilled = 'i';
 	static const char fillpadding = 'p';
-	HeapManager(size_t HeapSize, unsigned int numDescriptors, void* _pHeapMemeoy);
+	//HeapManager(size_t HeapSize, unsigned int numDescriptors, void* _pHeapMemeoy);
 	HeapManager(const HeapManager& other) = delete;
 	HeapManager& operator == (const HeapManager& other) = delete;
 	~HeapManager();
@@ -83,6 +83,8 @@ private:
 	void* _pHeapMemory;
 	void* _current;
 
+	size_t _end;
+
 	void* _debug;
 	size_t num_alloc = 0;
 	size_t num_free = 1;
@@ -90,10 +92,11 @@ private:
 
 	bool _Match(size_t size, unsigned int alignment);
 	bool _TryCut(size_t size, unsigned int alignment);
+	//this function will move _current forward to user's location
 	void _addinfoblock(size_t size);
 	// take the input pointer return the pointer to the next descriptor this will also check if write on the padding value under debug
 	INFOBLCOK* _TravelToNextDescriptor(const INFOBLCOK* const i_ptr) const;
-#if defined(_DEBUG)  &&  !defined(DISABLE_DEBUG_HEAPMANAGER)
+#if defined(_DEBUG) && !defined(DISABLE_DEBUG_HEAPMANAGER)
 	void _FreeCheck(void* ipr); // Do notic this function will not report if the user write on the padding area check if write overrange and on to the filled guard writing on 
 								//TODO add a descriptro as block + using + size for pervious + this padding size + size for next + block for debug and use using + size for pervious +size for next for release
 #endif
