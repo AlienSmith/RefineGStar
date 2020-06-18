@@ -7,23 +7,19 @@ namespace GStar {
 	class GSTime {
 	public:
 		static GSTime& Instance() {
-			if (!instance) {
-				instance = new GSTime();
-			}
-			return *instance;
+			static GSTime instance;
+			return instance;
 		}
-		static void Terminate() {
-			if (instance) {
-				delete instance;
-			}
+		void Destory() {
+
 		}
 		GSTime() :_lasttime(0.0f) {}
 		//Call this function after the GLFW window got setup and in every update()
-		inline double GetdeltaTime() const {
-			return _deltatime;
+		inline float GetdeltaTime() const {
+			return (float)_deltatime;
 		}
-		inline double GetTotalTime() const {
-			return _totaltime;
+		inline float GetTotalTime() const {
+			return (float)_totaltime;
 		}
 #ifdef _WIN32
 		inline void Initialize() {
@@ -51,13 +47,12 @@ namespace GStar {
 		}
 #endif
 	private:
-		static GSTime* instance;
-		double _deltatime;
-		double _lasttime;
-		double _totaltime;
+		double _deltatime =0;
+		double _lasttime =0;
+		double _totaltime =0;
 #ifdef _WIN32
-		double _base_time;
-		__int64 _frequency;
+		double _base_time=0;
+		__int64 _frequency=0;
 #endif
 	};
 }

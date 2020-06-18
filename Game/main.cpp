@@ -1,5 +1,5 @@
-#include"HeapManager_UnitTest.h"
+#include"TimeToSleepEvent.h"
 int main() {
-	HeapManager_UnitTest();
+	GStar::TimeEventTest();
 	return 0;
 }

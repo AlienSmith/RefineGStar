@@ -2,9 +2,25 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="HeapManager_UnitTest.cpp" />
+    <ClCompile Include="HeapManager_UnitTest.cpp">
+      <Filter>HeapManagerTest</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeToSleepEvent.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HeapManager_UnitTest.h" />
+    <Filter Include="HeapManagerTest">
+      <UniqueIdentifier>{271d8516-ba92-4d69-8c32-387a975608da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Time&amp;EventTest">
+      <UniqueIdentifier>{18944616-fcf9-4263-af72-99b74a1b9339}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="HeapManager_UnitTest.h">
+      <Filter>HeapManagerTest</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeToSleepEvent.h">
+      <Filter>Time&amp;EventTest</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

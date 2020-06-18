@@ -21,6 +21,10 @@
   <ItemGroup>
     <ClInclude Include="DebuggingTool\Assert.h" />
     <ClInclude Include="DebuggingTool\ConsolePrint.h" />
+    <ClInclude Include="EventManager\Delegate.h" />
+    <ClInclude Include="EventManager\Event.h" />
+    <ClInclude Include="EventManager\EventManager.h" />
+    <ClInclude Include="EventManager\EventUnite.h" />
     <ClInclude Include="HeapManager\BitArray.h" />
     <ClInclude Include="HeapManager\FixiedSizeAllocator.h" />
     <ClInclude Include="HeapManager\HeapManager.h" />
@@ -29,12 +33,11 @@
     <ClInclude Include="Time\GSTime.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DebuggingTool\ConsolePrint.cpp" />
+    <ClCompile Include="DebuggingTool\ConsolePrint_win.cpp" />
     <ClCompile Include="HeapManager\FixiedSizeAllocator.cpp" />
     <ClCompile Include="HeapManager\HeapManager.cpp" />
     <ClCompile Include="HeapManager\HeapManagerProxy.cpp" />
-    <ClCompile Include="HeapManager\MemorySystem.cpp" />
-    <ClCompile Include="Time\GSTime.cpp" />
+    <ClCompile Include="HeapManager\MemorySystem_win.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
