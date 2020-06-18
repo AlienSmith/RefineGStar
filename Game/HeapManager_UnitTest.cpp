@@ -1,13 +1,13 @@
+#include "HeapManager_UnitTest.h"
 #include <Windows.h>
 #include <stdio.h>
 #include "Assert.h"
 #include <algorithm>
 #include <vector>
 #include"../HeapManager/MemorySystem.h"
-#include "HeapManager_UnitTest.h"
 #include "../HeapManager/HeapManagerProxy.h"
-#include "../HeapManager/HeapManager.h"
 #include "../DebuggingTool/ConsolePrint.h"
+#include "../HeapManager/FixiedSizeAllocator.h"
 //#define SUPPORTS_ALIGNMENT
 #define SUPPORTS_SHOWFREEBLOCKS
 #define SUPPORTS_SHOWOUTSTANDINGALLOCATIONS
@@ -16,20 +16,14 @@ bool HeapManager_UnitTest()
 {
 	using namespace HeapManagerProxy;
 
-	const size_t 		sizeHeap = 1024 * 1024 * 10;
-	const unsigned int 	numDescriptors = 2048;
+	const size_t 		sizeHeap = 1024 * 1024;
+	//const unsigned int 	numDescriptors = 2048;
 
-	// Allocate memory for my test heap.
-	void* pHeapMemory = HeapAlloc(GetProcessHeap(), 0, sizeHeap);
-	ASSERT(pHeapMemory, "pHeapMemory");
-
-	// Create a heap manager for my test heap.
-	HeapManager::Instance().InitializeWith(sizeHeap, numDescriptors, pHeapMemory);
-	HeapManager* pHeapManager = &HeapManager::Instance();
-	ASSERT(pHeapMemory, "pHeapManager");
-
-	if (pHeapManager == nullptr)
-		return false;
+	//// Allocate memory for my test heap.
+	//void* pHeapMemory = HeapAlloc(GetProcessHeap(), 0, sizeHeap);
+	//ASSERT(pHeapMemory, "pHeapMemory");
+	GStar::InitializeMemorySystem();
+	HeapManager* pHeapManager = nullptr;
 	//int* i_ptr = new int();
 	//return true;
 //
@@ -81,10 +75,7 @@ bool HeapManager_UnitTest()
 //			}
 //		}
 //#endif
-	int i = 0;
 	{
-		i++;
-		printf("%d", i);
 		std::vector<void*> AllocatedAddresses;
 		//AllocatedAddresses.reserve(200000);
 		long	numAllocs = 0;
@@ -92,12 +83,20 @@ bool HeapManager_UnitTest()
 		long	numCollects = 0;
 		// allocate memory of random sizes up to 1024 bytes from the heap manager
 		// until it runs out of memory
+		int order = 0;
 		do
 		{
+			order++;
+			const size_t        fixsizeAllocator[] = { 16,32,96 };
 			const size_t		maxTestAllocationSize = 1024;
 
-			size_t			sizeAlloc = 1 + (rand() & (maxTestAllocationSize - 1));
-
+			size_t			sizeAlloc;
+			if (order % 4 == 0) {
+				sizeAlloc = 1 + (rand() & (maxTestAllocationSize - 1));
+			}
+			else {
+				sizeAlloc = fixsizeAllocator[order % 4 - 1];
+			}
 #ifdef SUPPORTS_ALIGNMENT
 			// pick an alignment
 			const unsigned int	alignments[] = { 4, 8, 16, 32, 64 };
@@ -233,7 +232,7 @@ bool HeapManager_UnitTest()
 		}
 	}
 	ASSERT(Destroy(), "Memory Allocated Not deleted");
-	HeapFree(GetProcessHeap(), 0, pHeapMemory);
+	GStar::DestroyMemorySystem();
 
 	// we succeeded
 	return true;

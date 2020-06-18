@@ -13,10 +13,12 @@ public:
 	const static size_t Block32UP;
 	const static size_t Block96Down;
 	const static size_t Block96UP;
+	const static size_t Padding;
 
 	static FixedSizeAllocator& Instance() { 
 		static FixedSizeAllocator instance;
-		return instance; }
+		return instance; 
+	}
 	void Initialize(void * i_pHeapMemory, size_t i_sizeHeapMemory);
 	bool Destory();
 	void Terminate() {
@@ -47,6 +49,7 @@ private:
 		_16ByteBlock(nullptr),
 		_32ByteBlock(nullptr),
 		_96ByteBlock(nullptr),
+		_pheapmemory(nullptr),
 		free_count(0),
 		new_count(0),
 		_isAlive(false){}
@@ -62,6 +65,8 @@ private:
 	void* _16ByteBlock;
 	void* _32ByteBlock;
 	void* _96ByteBlock;
+
+	void* _pheapmemory;
 
 	int free_count;
 	int new_count;

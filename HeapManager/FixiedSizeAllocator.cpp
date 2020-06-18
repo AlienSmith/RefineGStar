@@ -6,34 +6,39 @@
 #include "HeapManager.h"
 //Why Assert must be included before ConsolePrint?
 //need at least 6080000 bytes + 2 InfoBlocks + Bitarray 
-const size_t FixedSizeAllocator::ByteBlock16COUNT = 100000;
-const size_t FixedSizeAllocator::ByteBlock32COUNT = 20000;
-const size_t FixedSizeAllocator::ByteBlock96COUNT = 40000;
+const size_t FixedSizeAllocator::ByteBlock16COUNT = 10000;
+const size_t FixedSizeAllocator::ByteBlock32COUNT = 2000;
+const size_t FixedSizeAllocator::ByteBlock96COUNT = 4000;
 const size_t FixedSizeAllocator::Block16UP = 16;
 const size_t FixedSizeAllocator::Block16Down = 1;
 const size_t FixedSizeAllocator::Block32UP = 32;
 const size_t FixedSizeAllocator::Block32Down = 17;
 const size_t FixedSizeAllocator::Block96UP = 96;
 const size_t FixedSizeAllocator::Block96Down = 33;
-
+#if defined(_WIN32)
+const size_t FixedSizeAllocator::Padding = 4;
+#else
+const size_t FixedSizeAllocator::Padding = 8;
+#endif
 void FixedSizeAllocator::Initialize(void * i_pHeapMemory, size_t i_sizeHeapMemory)
 {
-	ASSERT(i_sizeHeapMemory < 6080000, "The heap is not bigger enough to include the fixsize allocator");
-	_16ByteArray.Initialize(FixedSizeAllocator::ByteBlock16COUNT, HeapManager::Instance().FindFirstFit((FixedSizeAllocator::ByteBlock16COUNT + 7) / 8), true);
-	_32ByteArray.Initialize(FixedSizeAllocator::ByteBlock32COUNT, HeapManager::Instance().FindFirstFit((FixedSizeAllocator::ByteBlock32COUNT + 7) / 8), true);
-	_96ByteArray.Initialize(FixedSizeAllocator::ByteBlock96COUNT, HeapManager::Instance().FindFirstFit((FixedSizeAllocator::ByteBlock96COUNT + 7) / 8), true);
-	_16ByteBlock = HeapManager::Instance().FindFirstFit(FixedSizeAllocator::ByteBlock16COUNT * 16);
-	_32ByteBlock = HeapManager::Instance().FindFirstFit(FixedSizeAllocator::ByteBlock32COUNT * 32);
-	_96ByteBlock = HeapManager::Instance().FindFirstFit(FixedSizeAllocator::ByteBlock32COUNT * 32);
+	ASSERT(i_sizeHeapMemory > 6080000, "The heap is not bigger enough to include the fixsize allocator");
+	_pheapmemory = i_pHeapMemory;
+	_16ByteArray.Initialize(FixedSizeAllocator::ByteBlock16COUNT, HeapManager::Instance().FindFirstFit((FixedSizeAllocator::ByteBlock16COUNT + 7) / 8,FixedSizeAllocator::Padding), true);
+	_32ByteArray.Initialize(FixedSizeAllocator::ByteBlock32COUNT, HeapManager::Instance().FindFirstFit((FixedSizeAllocator::ByteBlock32COUNT + 7) / 8, FixedSizeAllocator::Padding), true);
+	_96ByteArray.Initialize(FixedSizeAllocator::ByteBlock96COUNT, HeapManager::Instance().FindFirstFit((FixedSizeAllocator::ByteBlock96COUNT + 7) / 8, FixedSizeAllocator::Padding), true);
+	_16ByteBlock = HeapManager::Instance().FindFirstFit(FixedSizeAllocator::ByteBlock16COUNT * FixedSizeAllocator::Block16UP);
+	_32ByteBlock = HeapManager::Instance().FindFirstFit(FixedSizeAllocator::ByteBlock32COUNT * FixedSizeAllocator::Block32UP);
+	_96ByteBlock = HeapManager::Instance().FindFirstFit(FixedSizeAllocator::ByteBlock96COUNT * FixedSizeAllocator::Block96UP);
 	_isAlive = true;
 }
-
 bool FixedSizeAllocator::Destory()
 {
 	bool result = AllCleared();
 	_isAlive = false;
 	free_count = 0;
 	new_count = 0;
+	_pheapmemory = nullptr;
 	HeapManager::Instance().free(_96ByteBlock);
 	_96ByteBlock = nullptr;
 	HeapManager::Instance().free(_32ByteBlock);
@@ -58,7 +63,10 @@ bool FixedSizeAllocator::Isin16ByteBlock(void * i_ptr, size_t& index)const
 		}
 		else
 		{
-			DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Waring," is in the _16byte block but not a start point" );
+			DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Log," is in the _16byte block but not a start point" );
+			size_t debug_base = reinterpret_cast<size_t>(_pheapmemory);
+			size_t reltaive_distance = temp - debug_base;
+			DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Waring, " Relative position is %lu", reltaive_distance);
 		}
 	}
 	return false;
@@ -76,7 +84,10 @@ bool FixedSizeAllocator::Isin32ByteBlock(void * i_ptr, size_t& index)const
 		}
 		else
 		{
-			DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Waring, " is in the _32byte block but not a start point");
+			DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Log, " is in the _32byte block but not a start point");
+			size_t debug_base = reinterpret_cast<size_t>(_pheapmemory);
+			size_t reltaive_distance = temp - debug_base;
+			DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Waring, " Relative position is %lu", reltaive_distance);
 		}
 	}
 	return false;
@@ -94,7 +105,10 @@ bool FixedSizeAllocator::Isin96ByteBlock(void * i_ptr,size_t& index) const
 		}
 		else
 		{
-			DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Waring, " is in the _96 byte block but not a start point");
+			DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Log, " is in the _96 byte block but not a start point");
+			size_t debug_base = reinterpret_cast<size_t>(_pheapmemory);
+			size_t reltaive_distance = temp - debug_base;
+			DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Waring, " Relative position is %lu", reltaive_distance);
 		}
 	}
 	return false;
@@ -143,8 +157,14 @@ void * FixedSizeAllocator::malloc(size_t i_size, size_t i_alignment)
 			return head;
 		}
 	}
+	else {
+		return HeapManager::Instance().FindFirstFit(i_size, (unsigned int)i_alignment);
+	}
+	/*if (reinterpret_cast<size_t>(result) - reinterpret_cast<size_t>(_pheapmemory) == 8166964) {
+		DEBUG_PRINT(GStar::LOGPlatform::Console, GStar::LOGType::Waring, "got it");
+	}*/
 	//The block is too large or the corresponding address are all used
-	return HeapManager::Instance().FindFirstFit(i_size, (unsigned int)i_alignment);
+	return nullptr;
 }
 
 void FixedSizeAllocator::free(void * i_ptr)

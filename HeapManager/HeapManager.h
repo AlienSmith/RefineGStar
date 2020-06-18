@@ -6,7 +6,7 @@
 // the size in info block decides it can manage at most 1GB memory at release mod 2^30 byte = 1 GB
 #pragma once
 #include <stdio.h>
-#define GENERALHEAPSIZE 2.56e+8
+#define GENERALHEAPSIZE 8388608
 #if _WIN32 || _WIN64
 #if _WIN64
 #define ENVIRONMENT64

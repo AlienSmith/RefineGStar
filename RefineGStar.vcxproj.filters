@@ -14,6 +14,7 @@
     <ClInclude Include="HeapManager\FixiedSizeAllocator.h" />
     <ClInclude Include="HeapManager\BitArray.h" />
     <ClInclude Include="HeapManager\HeapManagerProxy.h" />
+    <ClInclude Include="HeapManager\MemorySystem.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="DebuggingTool">
@@ -36,5 +37,6 @@
     <ClCompile Include="HeapManager\HeapManager.cpp" />
     <ClCompile Include="HeapManager\FixiedSizeAllocator.cpp" />
     <ClCompile Include="HeapManager\HeapManagerProxy.cpp" />
+    <ClCompile Include="HeapManager\MemorySystem.cpp" />
   </ItemGroup>
 </Project>

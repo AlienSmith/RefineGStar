@@ -1,18 +1,5 @@
-#ifndef __CONSOLE_PRINT_H
-#define __CONSOLE_PRINT_H
+#pragma once
 #include<iostream>
-#ifndef NDEBUG
-#   define ASSERT(condition, message) \
-    do { \
-        if (! (condition)) { \
-            std::cerr << "Assertion `" #condition "` failed in " << __FILE__ \
-                      << " line " << __LINE__ << ": " << message << std::endl; \
-            std::terminate(); \
-        } \
-    } while (false)
-#else
-#   define ASSERT(condition, message) do { } while (false)
-#endif
 namespace GStar
 {
 	enum class LOGType { Log = 0, Waring = 1, Error = 2 };
@@ -31,4 +18,15 @@ namespace GStar
 #endif
 
 
-#endif // __CONSOLE_PRINT_H
+#if defined(_DEBUG) 
+#   define ASSERT(condition, message) \
+    do { \
+        if (! (condition)) { \
+            std::cerr << "Assertion `" #condition "` failed in " << __FILE__ \
+                      << " line " << __LINE__ << ": " << message << std::endl; \
+            std::terminate(); \
+        } \
+    } while (false)
+#else
+#   define ASSERT(condition, message) do { } while (false)
+#endif
