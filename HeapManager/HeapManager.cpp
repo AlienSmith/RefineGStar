@@ -4,7 +4,6 @@
 #include "../DebuggingTool/ConsolePrint.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "../DebuggingTool/Assert.h"
 #if defined(_DEBUGACTIVITE)
 void HeapManager::InitializeWith(size_t HeapSize, unsigned int numDescriptors, void * _pHeapMemeoy)
 {
@@ -508,15 +507,15 @@ size_t HeapManager::difference(void * one, void * two)
 
 
 //#if defined(_DEBUG)
-void* operator new(size_t i_size)
-{
-	/*if (!HeapManager::GeneralHeap) {
-		HeapManager::GeneralHeap = malloc(GENERALHEAPSIZE);
-		HeapManager::Instance().InitializeWith(GENERALHEAPSIZE, GENERALHEAPSIZE, HeapManager::GeneralHeap);
-	}*/
-	//HeapManager::Instance().SetPointerTo(HeapManager::GeneralHeap);
-	return HeapManager::Instance().FindFirstFit(i_size);
-}
+//void* operator new(size_t i_size)
+//{
+//	/*if (!HeapManager::GeneralHeap) {
+//		HeapManager::GeneralHeap = malloc(GENERALHEAPSIZE);
+//		HeapManager::Instance().InitializeWith(GENERALHEAPSIZE, GENERALHEAPSIZE, HeapManager::GeneralHeap);
+//	}*/
+//	//HeapManager::Instance().SetPointerTo(HeapManager::GeneralHeap);
+//	return HeapManager::Instance().FindFirstFit(i_size);
+//}
 //#else
 //void* operator new(size_t i_size)
 //{
@@ -530,14 +529,14 @@ void* operator new(size_t i_size)
 //#endif // _DEBUG && _HEAPADDRESS
 
 
-void operator delete(void * i_ptr)
-{
-	if ((rand() % 1000) == 0) {
-		//HeapManager::Instance().SetPointerTo(HeapManager::GeneralHeap);
-		HeapManager::Instance().free(i_ptr);
-		HeapManager::Instance().Collect();
-	}
-	else {
-		HeapManager::Instance().free(i_ptr);
-	}
-}
+//void operator delete(void * i_ptr)
+//{
+//	if ((rand() % 1000) == 0) {
+//		//HeapManager::Instance().SetPointerTo(HeapManager::GeneralHeap);
+//		HeapManager::Instance().free(i_ptr);
+//		HeapManager::Instance().Collect();
+//	}
+//	else {
+//		HeapManager::Instance().free(i_ptr);
+//	}
+//}

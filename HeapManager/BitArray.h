@@ -12,7 +12,21 @@ namespace GStar {
 	class BitArray {
 	public:
 		BitArray(size_t i_numBit, void* i_pHead, bool i_startClear) :_numbits(i_numBit), _Phead(static_cast<uint8_t*>(i_pHead)) { i_startClear ? ClearAll() : SetAll(); }
-
+		void Initialize(size_t i_numBit, void* i_pHead, bool i_startClear) {
+			_numbits = i_numBit;
+			_Phead = static_cast<uint8_t*>(i_pHead);
+			i_startClear ? ClearAll() : SetAll();
+		}
+		void Destory() {
+			HeapManager::Instance().free(_Phead);
+			_Phead = nullptr;
+			_numbits = 0;
+		}
+		BitArray():_numbits(0), _Phead(nullptr){}
+		BitArray(const BitArray& other) = delete;
+		~BitArray() {
+		}
+		BitArray& operator == (const BitArray& other) = delete;
 		inline void ClearAll() { memset(reinterpret_cast<void*>(_Phead), 0, (_numbits + 7) / 8); }
 		inline void SetAll() { memset(reinterpret_cast<void*>(_Phead), 255, (_numbits + 7) / 8); }
 
@@ -29,13 +43,10 @@ namespace GStar {
 		bool GetFirstSetBit(size_t& out o_bitNumber) const;
 		// this start with 1 for consistancy
 		bool operator[](size_t i_bitNumber) const;
-		~BitArray() {
-			HeapManager::Instance().free(_Phead);
-		}
 		BitArray& operator = (const BitArray&) = delete;
 	private:
-		const size_t _numbits;
-		uint8_t* const _Phead;
+		size_t _numbits;
+		uint8_t* _Phead;
 	};
 #if defined(ENVIRONMENT64)
 	inline bool BitArray::GetFirstClearBit(size_t &out o_bitNumber) const

@@ -1,9 +1,8 @@
+#include <Windows.h>	// for OutputDebugStringA(). Uggh.. this pulls in a lot of Windows specific stuff
 #include <assert.h>		// for assert()
 #include <stdarg.h>		// for va_<xxx>
 #include <stdio.h>		// for vsprintf_s()
-#include <Windows.h>	// for OutputDebugStringA(). Uggh.. this pulls in a lot of Windows specific stuff
 #include "ConsolePrint.h"
-#include "Assert.h"
 namespace GStar
 {
 	void ConsolePrint(LOGPlatform platform, LOGType type, const char * i_fmt, ...)

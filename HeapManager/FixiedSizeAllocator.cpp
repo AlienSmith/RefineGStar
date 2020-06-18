@@ -1,16 +1,16 @@
+#include "../DebuggingTool/ConsolePrint.h"
 #include "FixiedSizeAllocator.h"
 #include <inttypes.h>
 #include <malloc.h>
-#include <Windows.h>
 #include <stdio.h>
 #include "HeapManager.h"
-#include "../DebuggingTool/ConsolePrint.h"
-FixedSizeAllocator* FixedSizeAllocator::instance = nullptr;
+//Why Assert must be included before ConsolePrint?
+//need at least 6080000 bytes + 2 InfoBlocks + Bitarray 
 const size_t FixedSizeAllocator::ByteBlock16COUNT = 100000;
 const size_t FixedSizeAllocator::ByteBlock32COUNT = 20000;
 const size_t FixedSizeAllocator::ByteBlock96COUNT = 40000;
 const size_t FixedSizeAllocator::Block16UP = 16;
-const size_t FixedSizeAllocator::Block16Down = 0;
+const size_t FixedSizeAllocator::Block16Down = 1;
 const size_t FixedSizeAllocator::Block32UP = 32;
 const size_t FixedSizeAllocator::Block32Down = 17;
 const size_t FixedSizeAllocator::Block96UP = 96;
@@ -18,10 +18,32 @@ const size_t FixedSizeAllocator::Block96Down = 33;
 
 void FixedSizeAllocator::Initialize(void * i_pHeapMemory, size_t i_sizeHeapMemory)
 {
-	if (!FixedSizeAllocator::instance) {
-		HeapManager::Instance().InitializeWith(i_sizeHeapMemory, (unsigned int)i_sizeHeapMemory, i_pHeapMemory);
-		FixedSizeAllocator::instance = new FixedSizeAllocator();
-	}
+	ASSERT(i_sizeHeapMemory < 6080000, "The heap is not bigger enough to include the fixsize allocator");
+	_16ByteArray.Initialize(FixedSizeAllocator::ByteBlock16COUNT, HeapManager::Instance().FindFirstFit((FixedSizeAllocator::ByteBlock16COUNT + 7) / 8), true);
+	_32ByteArray.Initialize(FixedSizeAllocator::ByteBlock32COUNT, HeapManager::Instance().FindFirstFit((FixedSizeAllocator::ByteBlock32COUNT + 7) / 8), true);
+	_96ByteArray.Initialize(FixedSizeAllocator::ByteBlock96COUNT, HeapManager::Instance().FindFirstFit((FixedSizeAllocator::ByteBlock96COUNT + 7) / 8), true);
+	_16ByteBlock = HeapManager::Instance().FindFirstFit(FixedSizeAllocator::ByteBlock16COUNT * 16);
+	_32ByteBlock = HeapManager::Instance().FindFirstFit(FixedSizeAllocator::ByteBlock32COUNT * 32);
+	_96ByteBlock = HeapManager::Instance().FindFirstFit(FixedSizeAllocator::ByteBlock32COUNT * 32);
+	_isAlive = true;
+}
+
+bool FixedSizeAllocator::Destory()
+{
+	bool result = AllCleared();
+	_isAlive = false;
+	free_count = 0;
+	new_count = 0;
+	HeapManager::Instance().free(_96ByteBlock);
+	_96ByteBlock = nullptr;
+	HeapManager::Instance().free(_32ByteBlock);
+	_32ByteBlock = nullptr;
+	HeapManager::Instance().free(_16ByteBlock);
+	_16ByteBlock = nullptr;
+	_96ByteArray.Destory();
+	_32ByteArray.Destory();
+	_16ByteArray.Destory();
+	return result;
 }
 
 bool FixedSizeAllocator::Isin16ByteBlock(void * i_ptr, size_t& index)const
@@ -80,9 +102,10 @@ bool FixedSizeAllocator::Isin96ByteBlock(void * i_ptr,size_t& index) const
 
 void * FixedSizeAllocator::malloc(size_t i_size, size_t i_alignment)
 {
+	ASSERT(_isAlive, "Try to use dead instance");
 	new_count++;
-	// 1~15
-	if (FixedSizeAllocator::Block16Down < i_size && i_size < FixedSizeAllocator::Block16UP) {
+	// 1~16
+	if (FixedSizeAllocator::Block16Down < i_size && i_size <= FixedSizeAllocator::Block16UP) {
 		bool temp;
 		size_t index;
 		temp = _16ByteArray.GetFirstClearBit(index);
@@ -94,8 +117,8 @@ void * FixedSizeAllocator::malloc(size_t i_size, size_t i_alignment)
 			return head;
 		}
 	}
-	// 18~31
-	else if (FixedSizeAllocator::Block32Down < i_size && i_size < FixedSizeAllocator::Block32UP) {
+	// 17~32
+	else if (FixedSizeAllocator::Block32Down <= i_size && i_size <= FixedSizeAllocator::Block32UP) {
 		bool temp;
 		size_t index;
 		temp = _32ByteArray.GetFirstClearBit(index);
@@ -107,8 +130,8 @@ void * FixedSizeAllocator::malloc(size_t i_size, size_t i_alignment)
 			return head;
 		}
 	}
-	// 34~95
-	else if (FixedSizeAllocator::Block96Down < i_size && i_size < FixedSizeAllocator::Block96UP) {
+	// 33~96
+	else if (FixedSizeAllocator::Block96Down <= i_size && i_size <= FixedSizeAllocator::Block96UP) {
 		bool temp;
 		size_t index;
 		temp = _96ByteArray.GetFirstClearBit(index);
@@ -124,57 +147,89 @@ void * FixedSizeAllocator::malloc(size_t i_size, size_t i_alignment)
 	return HeapManager::Instance().FindFirstFit(i_size, (unsigned int)i_alignment);
 }
 
-//void FixedSizeAllocator::free(void * i_ptr)
-//{
-//	free_count++;
-//	size_t index;
-//	if (Isin16ByteBlock(i_ptr,index)) {
-//		DEBUG_PRINT(GStar::LOGPlatform::Console, GStar::LOGType::Log, "%p 16byte block free", i_ptr);
-//#if defined(_DEBUG)
-//		if (_16ByteArray.isBitFree(index)) {
-//			DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Waring, "attempt to realease memory that has already released");
-//		}
-//#endif
-//		_16ByteArray.ClearBit(index);
-//	}
-//	else if (Isin32ByteBlock(i_ptr,index)) {
-//		DEBUG_PRINT(GStar::LOGPlatform::Console, GStar::LOGType::Log, "%p 32byte block free", i_ptr);
-//#if defined(_DEBUG)
-//		if (_32ByteArray.isBitFree(index)) {
-//			DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Waring, "attempt to realease memory that has already released");
-//		}
-//#endif
-//		_32ByteArray.ClearBit(index);
-//	}
-//	else if (Isin96ByteBlock(i_ptr,index)) {
-//		DEBUG_PRINT(GStar::LOGPlatform::Console, GStar::LOGType::Log, "%p 96byte block free", i_ptr);
-//#if defined(_DEBUG)
-//		if (_96ByteArray.isBitFree(index)) {
-//			DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Waring, "attempt to realease memory that has already released");
-//		}
-//#endif
-//		_96ByteArray.ClearBit(index);
-//	}
-//	else if (HeapManager::Instance().contains(i_ptr)) {
-//		HeapManager::Instance().free(i_ptr);
-//	}
-//	else
-//	{
-//		DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Waring, "%p is not allocated by the memory system",i_ptr);
-//	}
-//}
-
-FixedSizeAllocator::FixedSizeAllocator() :
-	_16ByteArray(GStar::BitArray(FixedSizeAllocator::ByteBlock16COUNT, HeapManager::Instance().FindFirstFit((FixedSizeAllocator::ByteBlock16COUNT + 7) / 8), true)),
-	_32ByteArray(GStar::BitArray(FixedSizeAllocator::ByteBlock32COUNT, HeapManager::Instance().FindFirstFit((FixedSizeAllocator::ByteBlock32COUNT + 7) / 8), true)),
-	_96ByteArray(GStar::BitArray(FixedSizeAllocator::ByteBlock96COUNT, HeapManager::Instance().FindFirstFit((FixedSizeAllocator::ByteBlock96COUNT + 7) / 8), true)),
-	_16ByteBlock(HeapManager::Instance().FindFirstFit(FixedSizeAllocator::ByteBlock16COUNT * 16)),
-	_32ByteBlock(HeapManager::Instance().FindFirstFit(FixedSizeAllocator::ByteBlock32COUNT * 32)),
-	_96ByteBlock(HeapManager::Instance().FindFirstFit(FixedSizeAllocator::ByteBlock96COUNT * 96)),
-	free_count(0),
-	new_count(0)
+void FixedSizeAllocator::free(void * i_ptr)
 {
+	ASSERT(_isAlive, "Try to use dead instance");
+	free_count++;
+	size_t index;
+	if (Isin16ByteBlock(i_ptr,index)) {
+		DEBUG_PRINT(GStar::LOGPlatform::Console, GStar::LOGType::Log, "%p 16byte block free", i_ptr);
+#if defined(_DEBUG)
+		if (_16ByteArray.isBitFree(index)) {
+			DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Waring, "attempt to realease memory that has already released");
+		}
+#endif
+		_16ByteArray.ClearBit(index);
+	}
+	else if (Isin32ByteBlock(i_ptr,index)) {
+		DEBUG_PRINT(GStar::LOGPlatform::Console, GStar::LOGType::Log, "%p 32byte block free", i_ptr);
+#if defined(_DEBUG)
+		if (_32ByteArray.isBitFree(index)) {
+			DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Waring, "attempt to realease memory that has already released");
+		}
+#endif
+		_32ByteArray.ClearBit(index);
+	}
+	else if (Isin96ByteBlock(i_ptr,index)) {
+		DEBUG_PRINT(GStar::LOGPlatform::Console, GStar::LOGType::Log, "%p 96byte block free", i_ptr);
+#if defined(_DEBUG)
+		if (_96ByteArray.isBitFree(index)) {
+			DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Waring, "attempt to realease memory that has already released");
+		}
+#endif
+		_96ByteArray.ClearBit(index);
+	}
+	else if (HeapManager::Instance().contains(i_ptr)) {
+		HeapManager::Instance().free(i_ptr);
+	}
+	else
+	{
+		DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Waring, "%p is not allocated by the memory system",i_ptr);
+	}
 }
+
+bool FixedSizeAllocator::IsAllocated(void* iptr) const
+{
+	size_t index;
+	if(Isin16ByteBlock(iptr, index)){
+		if (_16ByteArray.isBitSet(index)) {
+			return true;
+		}
+	}
+	else if (Isin32ByteBlock(iptr, index)) {
+		if (_32ByteArray.isBitSet(index)) {
+			return true;
+		}
+	}
+	else if (Isin96ByteBlock(iptr,index)){
+		if (_96ByteArray.isBitSet(index)) {
+			return true;
+		}
+	}
+	else if(HeapManager::Instance().IsAllocated(iptr)) {
+		return true;
+	}
+	else {
+		return false;
+	}
+	
+	return true;
+}
+
+bool FixedSizeAllocator::contains(void* iptr) const
+{
+	size_t index;
+	if (Isin16ByteBlock(iptr, index)) {}
+	else if (Isin32ByteBlock(iptr, index)) {}
+	else if (Isin96ByteBlock(iptr, index)) {}
+	else if (HeapManager::Instance().contains(iptr)) {}
+	else {
+		return false;
+	}
+
+	return true;
+}
+
 /*void * __cdecl malloc(size_t i_size)
 {
 	return FixedSizeAllocator::Instance()->malloc(i_size, 4);

@@ -39,7 +39,8 @@ public:
 		return instance;
 	}
 	void InitializeWith(size_t HeapSize, unsigned int numDescriptors, void * _pHeapMemeoy);
-	void Destory() {
+	bool Destory() {
+		bool result = HeapManager::Instance().AreBlocksFree();
 		_pHeapMemory = nullptr; 
 		_sizeHeap = 0;
 		_numDescriptors =0;
@@ -47,6 +48,7 @@ public:
 		_current = nullptr;
 		num_alloc = 0;
 		num_free = 0;
+		return result;
 	}
 	//Move to Lower Adresses
 	static void* _movePointerForward(const void* const _pointer, size_t number);
@@ -80,7 +82,7 @@ public:
 	bool AreBlocksFree() const;
 	//Temp Function
 private:
-	HeapManager() :_pHeapMemory(nullptr) {}
+	HeapManager() :_pHeapMemory(nullptr),_current(nullptr) {}
 	HeapManager& operator ==(HeapManager& other) = delete;
 	HeapManager(const HeapManager& other) = delete;
 	~HeapManager(){}

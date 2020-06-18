@@ -1,9 +1,22 @@
 #ifndef __CONSOLE_PRINT_H
 #define __CONSOLE_PRINT_H
+#include<iostream>
+#ifndef NDEBUG
+#   define ASSERT(condition, message) \
+    do { \
+        if (! (condition)) { \
+            std::cerr << "Assertion `" #condition "` failed in " << __FILE__ \
+                      << " line " << __LINE__ << ": " << message << std::endl; \
+            std::terminate(); \
+        } \
+    } while (false)
+#else
+#   define ASSERT(condition, message) do { } while (false)
+#endif
 namespace GStar
 {
-	enum LOGType { Log = 0, Waring = 1, Error = 2 };
-	enum LOGPlatform { Output = 0, Console = 1 };
+	enum class LOGType { Log = 0, Waring = 1, Error = 2 };
+    enum class  LOGPlatform{ Output = 0, Console = 1 };
 	void ConsolePrint(LOGPlatform platform, LOGType type, const char * i_fmt, ...);
 } // Namespace GStar
 
