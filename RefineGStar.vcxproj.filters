@@ -37,6 +37,8 @@
     <ClInclude Include="EventManager\EventUnite.h">
       <Filter>EventManager</Filter>
     </ClInclude>
+    <ClInclude Include="Utility\SmartPointer.h" />
+    <ClInclude Include="Utility\UniqueToManyPointer.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="DebuggingTool">

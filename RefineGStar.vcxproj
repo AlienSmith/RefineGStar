@@ -31,6 +31,8 @@
     <ClInclude Include="HeapManager\HeapManagerProxy.h" />
     <ClInclude Include="HeapManager\MemorySystem.h" />
     <ClInclude Include="Time\GSTime.h" />
+    <ClInclude Include="Utility\SmartPointer.h" />
+    <ClInclude Include="Utility\UniqueToManyPointer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DebuggingTool\ConsolePrint_win.cpp" />
