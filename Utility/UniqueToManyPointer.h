@@ -27,11 +27,9 @@ namespace GStar {
 		T* m_ptr;
 		ref_counter_t* m_Spectatorcount;
 		SpectatorPointer(T* ptr, ref_counter_t* reference_count) :m_ptr(ptr), m_Spectatorcount(reference_count) {
-			reference_count++;
+			(*m_Spectatorcount)++;
 		}
 		inline void ReleaseReference() {
-			ASSERT(m_Spectatorcount != nullptr, "try to release a nullptr");
-			//should this one be here since
 			if (--(*m_Spectatorcount) == 0) {
 				if (!m_ptr) {
 					delete m_Spectatorcount;
@@ -42,13 +40,16 @@ namespace GStar {
 			return m_ptr;
 		}
 	public:
+		inline void Reset() {
+			m_ptr = nullptr;
+			m_Spectatorcount = nullptr;
+		}
 		SpectatorPointer(SpectatorPointer&& i_other) :
 			m_ptr(i_other.m_ptr),
 			m_Spectatorcount(i_other.m_Spectatorcount)
 		{
 			ASSERT(i_other.m_ptr != nullptr, "try to move a nullptr");
-			i_other.m_ptr = nullptr;
-			i_other.m_Spectatorcount = nullptr;
+			i_other.Reset();
 		}
 		template<class U>
 		SpectatorPointer(SpectatorPointer<U>&& i_other) :
@@ -56,40 +57,35 @@ namespace GStar {
 			m_Spectatorcount(i_other.m_Spectatorcount)
 		{
 			ASSERT(i_other.m_ptr != nullptr, "try to copy a nullptr");
-			i_other.m_ptr = nullptr;
-			i_other.m_Spectatorcount = nullptr;
+			i_other.Reset();
 		}
 		inline SpectatorPointer&& operator = (SpectatorPointer<T>&& i_other) {
-			T* temp = m_ptr;
-			ref_counter_t* temp_count = m_Spectatorcount;
 			ASSERT(i_other.m_ptr != nullptr, "try to move a nullptr");
 			if (m_ptr == i_other.m_ptr) {
 				DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Log, "SelfAssignment");
 				return *this;
 			}
+			ReleaseReference();
 			m_ptr = i_other.m_ptr;
 			m_Spectatorcount = i_other.m_Spectatorcount;
-			i_other.m_ptr = temp;
-			i_other.m_Spectatorcount = temp_count;
+			i_other.Reset();
 			return *this;
 		}
 		template<class U>
-		inline SpectatorPointer& operator = (SpectatorPointer<U>& i_other) {
-			U* temp = static_cast<U*>(m_ptr);
-			ref_counter_t* temp_count = m_Spectatorcount;
+		inline SpectatorPointer&& operator = (SpectatorPointer<U>&& i_other) {
 			ASSERT(i_other.m_ptr != nullptr, "try to move a nullptr");
 			if (m_ptr == i_other.m_ptr) {
 				DEBUG_PRINT(GStar::LOGPlatform::Output, GStar::LOGType::Log, "SelfAssignment");
 				return *this;
 			}
+			ReleaseReference();
 			m_ptr = i_other.m_ptr;
 			m_Spectatorcount = i_other.m_Spectatorcount;
-			i_other.m_ptr = temp;
-			i_other.m_Spectatorcount = temp_count;
+			i_other.Reset();
 			return *this;
 		}
 
-		SpectatorPointer() :m_ptr(nullptr), m_Spectatorcount(new ref_counter_t(1)) {}
+		SpectatorPointer() :m_ptr(nullptr), m_Spectatorcount(nullptr) {}
 		SpectatorPointer(SpectatorPointer& i_other) :
 			m_ptr(i_other.m_ptr),
 			m_Spectatorcount(i_other.m_Spectatorcount)
@@ -113,7 +109,6 @@ namespace GStar {
 			}
 			ReleaseReference();
 			m_ptr = i_other.m_ptr;
-			m_RefCount = i_other.m_RefCount;
 			m_Spectatorcount = i_other.m_Spectatorcount;
 			(*m_Spectatorcount)++;
 			return *this;
@@ -127,7 +122,6 @@ namespace GStar {
 			}
 			ReleaseReference();
 			m_ptr = i_other.m_ptr;
-			m_RefCount = i_other.m_RefCount;
 			m_Spectatorcount = i_other.m_Spectatorcount;
 			(*m_Spectatorcount)++;
 			return *this;
@@ -182,20 +176,18 @@ namespace GStar {
 #endif
 		}
 		RootPointer(RootPointer<T>&& i_other):m_ptr(i_other.m_ptr),m_Spectatorcount(i_other.m_Spectatorcount) {
-			i_other.Reset();
 #if defined(_DEBUG)
 			m_Status = i_other.m_Status;
-			i_other.m_Spectatorcount = PointerStatus::InValid;
 #endif
+			i_other.Reset();
 		}
 		//Notice this will only support automatic Upcasting, From children ptr to parent ones
 		template<class U>
 		RootPointer(RootPointer<U>&& i_other):m_ptr(static_cast<T*>(i_other.m_ptr)), m_Spectatorcount(i_other.m_Spectatorcount) {
-			i_other.Reset();
 #if defined(_DEBUG)
 			m_Status = i_other.m_Status;
-			i_other.m_Spectatorcount = PointerStatus::InValid;
 #endif
+			i_other.Reset();
 		}
 		template<typename ... Types>
 		inline RootPointer&& make_rootpointer(Types ... args) {
@@ -225,11 +217,17 @@ namespace GStar {
 		inline void Destory() {
 			//the m_ptr can be nullptr by Constructed to or from or assign to or from a default RootPointer
 			if (m_ptr) {
+				delete m_ptr;
+			}
+			else {
 #if defined(_DEBUG)
 				ASSERT(m_Status == PointerStatus::Valid, "The pointer should not be a nullptr");
 #endif
-				delete m_ptr;
 			}
+			if (m_Spectatorcount && *m_Spectatorcount == 0) {
+				delete m_Spectatorcount;
+			}
+			Reset();
 		}
 		~RootPointer() {
 			Destory();
