@@ -26,10 +26,12 @@
   <ItemGroup>
     <ClCompile Include="HeapManager_UnitTest.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="SmartPointerTest.cpp" />
     <ClCompile Include="TimeToSleepEvent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HeapManager_UnitTest.h" />
+    <ClInclude Include="SmartPointerTest.h" />
     <ClInclude Include="TimeToSleepEvent.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -101,7 +103,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)EventManager;$(SolutionDir)HeapManager;$(SolutionDir)DebuggingTool;$(SolutionDir)Time;$(SolutionDir)Dependencies\GLAD;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Game;$(SolutionDir)GStar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)HeapManager;$(SolutionDir)DebuggingTool;$(SolutionDir)Utility;$(SolutionDir)Time;$(SolutionDir)Dependencies\GLAD;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Game;$(SolutionDir)GStar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -114,7 +116,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)DebuggingTool;$(SolutionDir)Time;$(SolutionDir)Dependencies\GLFW64\include;$(SolutionDir)Dependencies\GLAD;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)HeapManager;$(SolutionDir)DebuggingTool;$(SolutionDir)Utility;$(SolutionDir)Time;$(SolutionDir)Dependencies\GLAD;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Game;$(SolutionDir)GStar;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -129,7 +131,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)HeapManager;$(SolutionDir)DebuggingTool;$(SolutionDir)Time;$(SolutionDir)Dependencies\GLAD;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Game;$(SolutionDir)GStar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)HeapManager;$(SolutionDir)DebuggingTool;$(SolutionDir)Utility;$(SolutionDir)Time;$(SolutionDir)Dependencies\GLAD;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Game;$(SolutionDir)GStar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,7 +148,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)DebuggingTool;$(SolutionDir)Time;$(SolutionDir)Dependencies\GLFW64\include;$(SolutionDir)Dependencies\GLAD;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)HeapManager;$(SolutionDir)DebuggingTool;$(SolutionDir)Utility;$(SolutionDir)Time;$(SolutionDir)Dependencies\GLAD;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Game;$(SolutionDir)GStar;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

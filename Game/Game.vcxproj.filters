@@ -6,6 +6,7 @@
       <Filter>HeapManagerTest</Filter>
     </ClCompile>
     <ClCompile Include="TimeToSleepEvent.cpp" />
+    <ClCompile Include="SmartPointerTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="HeapManagerTest">
@@ -22,5 +23,6 @@
     <ClInclude Include="TimeToSleepEvent.h">
       <Filter>Time&amp;EventTest</Filter>
     </ClInclude>
+    <ClInclude Include="SmartPointerTest.h" />
   </ItemGroup>
 </Project>

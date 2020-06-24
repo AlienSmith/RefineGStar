@@ -1,5 +1,5 @@
-#include"TimeToSleepEvent.h"
+#include"SmartPointerTest.h"
 int main() {
-	GStar::TimeEventTest();
+	GStar::SmartPointerTestEnterance();
 	return 0;
 }
